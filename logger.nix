@@ -13,7 +13,7 @@ in
     tag = mkOption {
       type = types.str;
       description = "The tag for log lines";
-      default = "mt-server";
+      default = "necesse";
     };
   };
 
