@@ -19,6 +19,9 @@ let
   '';
 in
 {
+  imports = [
+    ./logger.nix
+  ];
   options.services.necesse-server = mkOption {
     type = types.submodule (import ./backend-options.nix);
   };
