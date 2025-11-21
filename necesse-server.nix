@@ -1,6 +1,7 @@
 { lib, pkgs, config, ...}:
 with lib;
 let
+  cfg = config.services.necesse-server;
   # Paths
   steamPath = "/home/${cfg.user}/.steam/steam";
 
@@ -24,8 +25,8 @@ in
 
   config = mkIf cfg.enable {
     networking.firewall = lib.mkIf cfg.openFirewall {
-      allowedTCPPorts = [cfg.port cfg.queryPort];
-      allowedUDPPorts = [cfg.port cfg.queryPort];
+      allowedTCPPorts = [cfg.port];
+      allowedUDPPorts = [cfg.port];
     };
 
     nixpkgs.config.allowUnfreePredicate = lib.mkDefault (pkg: builtins.elem (lib.getName pkg) [
@@ -61,12 +62,15 @@ in
         User = cfg.user;
         Group = "modders";
         Restart = "always";
-        EnvironmentFile = cfg.credentialsFile;
+        # EnvironmentFile = lib.mkIf (cfg.credentialsFile != null) cfg.credentialsFile;
         KillSignal = "SIGKILL";
         StateDirectory = cfg.stateDirectory;
         StateDirectoryMode = "770";
-        ExecStart="/bin/sh -c \"$STATE_DIRECTORY/Necesse\ Dedicated\ Server/StartServer-nogui.sh -localdir -world AMC1\"";
       };
+      script=''
+        ${lib.getExe serverUpdateScript}
+        exec ${pkgs.steam-run}/bin/steam-run $STATE_DIRECTORY/StartServer-nogui.sh -localdir -world AMC1 -owner freeman
+      '';
     };
 
     users.users.${cfg.user} = lib.mkDefault {
@@ -75,6 +79,12 @@ in
         pkgs.steamcmd
         mods.installModsScriptBin
       ];
+    };
+
+    services.necesse-server-logger = {
+      enable = cfg.enableLogStreaming;
+      serverLogsPath = "/var/lib/${cfg.stateDirectory}/logs";
+      tag = "necesse";
     };
   };
 }
