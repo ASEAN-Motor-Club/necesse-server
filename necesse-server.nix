@@ -51,12 +51,26 @@ in
     };
 
     users.groups.modders = {
-      members = [ cfg.user ];
+      members = [ cfg.user "amc" ];
+    };
+
+    systemd.sockets.necesse-server = {
+      description = "Command Input FIFO for Necesse Server";
+      wantedBy = [ "sockets.target" ];
+      socketConfig = {
+        ListenFIFO = "/run/necesse-server/server.fifo";
+        SocketUser = cfg.user;
+        SocketGroup = "modders";
+        SocketMode = "0660";     # Read/Write for User & Group
+        DirectoryMode = "0770";  # Ensure parent directory is accessible by group
+        RemoveOnStop = "true";
+      };
     };
 
     systemd.services.necesse-server = {
       wantedBy = [ "multi-user.target" ]; 
-      after = [ "network.target" ];
+      after = [ "network.target" "necesse-server.socket" ];
+      requires = [ "necesse-server.socket" ];
       description = "Necesse Dedicated Server";
       environment = cfg.environment;
       restartIfChanged = false;
@@ -69,9 +83,11 @@ in
         KillSignal = "SIGKILL";
         StateDirectory = cfg.stateDirectory;
         StateDirectoryMode = "770";
+        StandardInput="socket";
+        StandardOutput="journal";
       };
       script=''
-        ${lib.getExe serverUpdateScript}
+        # ${lib.getExe serverUpdateScript}
         exec ${pkgs.steam-run}/bin/steam-run $STATE_DIRECTORY/StartServer-nogui.sh -localdir -world AMC1 -owner freeman
       '';
     };
