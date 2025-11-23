@@ -52,6 +52,7 @@ in
 
     users.groups.modders = {
       members = [ cfg.user "amc" ];
+      gid = 987;
     };
 
     systemd.sockets.necesse-server = {
