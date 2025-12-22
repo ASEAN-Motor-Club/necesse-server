@@ -41,6 +41,11 @@ let
       type = types.path;
       description = "An environment file containing STEAM_USERNAME and STEAM_PASSWORD";
     };
+    ownerName = mkOption {
+      type = types.str;
+      default = "owner";
+      description = "The player name that will be passed as the owner of the server";
+    };
   };
 
 in {

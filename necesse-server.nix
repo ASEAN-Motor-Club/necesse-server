@@ -88,8 +88,8 @@ in
         StandardOutput="journal";
       };
       script=''
-        # ${lib.getExe serverUpdateScript}
-        exec ${pkgs.steam-run}/bin/steam-run $STATE_DIRECTORY/StartServer-nogui.sh -localdir -world AMC1 -owner freeman
+        ${lib.getExe serverUpdateScript}
+        exec ${pkgs.steam-run}/bin/steam-run $STATE_DIRECTORY/StartServer-nogui.sh -localdir -world AMC1 -owner ${cfg.ownerName}
       '';
     };
 
