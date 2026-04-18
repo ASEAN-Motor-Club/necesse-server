@@ -1,9 +1,12 @@
-{ lib, pkgs, config, ...}:
-with lib;
-let
-  cfg = config.services.necesse-server-logger;
-in
 {
+  lib,
+  pkgs,
+  config,
+  ...
+}:
+with lib; let
+  cfg = config.services.necesse-server-logger;
+in {
   options.services.necesse-server-logger = {
     enable = lib.mkEnableOption "Necesse server log streaming";
     serverLogsPath = mkOption {

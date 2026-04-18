@@ -1,6 +1,9 @@
-{ lib, config, ... }:
-with lib;
-let
+{
+  lib,
+  config,
+  ...
+}:
+with lib; let
   cfg = config;
   backendOptions = {
     enable = mkEnableOption "motortown server";
@@ -47,7 +50,6 @@ let
       description = "The player name that will be passed as the owner of the server";
     };
   };
-
 in {
   options = backendOptions;
 }

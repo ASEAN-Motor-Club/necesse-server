@@ -1,6 +1,10 @@
-{ lib, pkgs, config, ...}:
-with lib;
-let
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
+with lib; let
   cfg = config.services.necesse-server;
   # Paths
   steamPath = "/home/${cfg.user}/.steam/steam";
@@ -17,8 +21,7 @@ let
       +app_update ${gameAppId} validate \
       +quit
   '';
-in
-{
+in {
   imports = [
     ./logger.nix
   ];
@@ -32,15 +35,16 @@ in
       allowedUDPPorts = [cfg.port];
     };
 
-    nixpkgs.config.allowUnfreePredicate = lib.mkDefault (pkg: builtins.elem (lib.getName pkg) [
-      "steam"
-      "steamcmd"
-      "steam-original"
-      "steam-unwrapped"
-      "steam-run"
-      "motortown-server"
-      "steamworks-sdk-redist"
-    ]);
+    nixpkgs.config.allowUnfreePredicate = lib.mkDefault (pkg:
+      builtins.elem (lib.getName pkg) [
+        "steam"
+        "steamcmd"
+        "steam-original"
+        "steam-unwrapped"
+        "steam-run"
+        "motortown-server"
+        "steamworks-sdk-redist"
+      ]);
 
     programs.steam = {
       enable = lib.mkDefault true;
@@ -51,27 +55,27 @@ in
     };
 
     users.groups.modders = {
-      members = [ cfg.user "amc" ];
+      members = [cfg.user "amc"];
       gid = 987;
     };
 
     systemd.sockets.necesse-server = {
       description = "Command Input FIFO for Necesse Server";
-      wantedBy = [ "sockets.target" ];
+      wantedBy = ["sockets.target"];
       socketConfig = {
         ListenFIFO = "/run/necesse-server/server.fifo";
         SocketUser = cfg.user;
         SocketGroup = "modders";
-        SocketMode = "0660";     # Read/Write for User & Group
-        DirectoryMode = "0770";  # Ensure parent directory is accessible by group
+        SocketMode = "0660"; # Read/Write for User & Group
+        DirectoryMode = "0770"; # Ensure parent directory is accessible by group
         RemoveOnStop = "true";
       };
     };
 
     systemd.services.necesse-server = {
-      wantedBy = [ "multi-user.target" ]; 
-      after = [ "network.target" "necesse-server.socket" ];
-      requires = [ "necesse-server.socket" ];
+      wantedBy = ["multi-user.target"];
+      after = ["network.target" "necesse-server.socket"];
+      requires = ["necesse-server.socket"];
       description = "Necesse Dedicated Server";
       environment = cfg.environment;
       restartIfChanged = false;
@@ -84,10 +88,10 @@ in
         KillSignal = "SIGKILL";
         StateDirectory = cfg.stateDirectory;
         StateDirectoryMode = "770";
-        StandardInput="socket";
-        StandardOutput="journal";
+        StandardInput = "socket";
+        StandardOutput = "journal";
       };
-      script=''
+      script = ''
         ${lib.getExe serverUpdateScript}
         exec ${pkgs.steam-run}/bin/steam-run $STATE_DIRECTORY/StartServer-nogui.sh -localdir -world AMC1 -owner ${cfg.ownerName}
       '';
